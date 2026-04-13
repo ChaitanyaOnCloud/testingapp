@@ -8,10 +8,6 @@ on:
   pull_request:
     branches: [ "main" ]
 
-env:
-  NODE_ENV: production
-  DB_PASSWORD: ${{ secrets.DATABASE_PASSWORD }}
-
 jobs:
   build-backend:
     name: Build and Test Backend
@@ -20,17 +16,14 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '18.x'
-
-      - name: Install dependencies
+      - name: Install Python dependencies
         working-directory: ./backend
         run: pip install -r requirements.txt
 
       - name: Run Backend Tests
         working-directory: ./backend
+        env:
+          DB_PASSWORD: ${{ secrets.DATABASE_PASSWORD }}
         run: |
           echo "Starting tests..."
           ls
@@ -42,11 +35,6 @@ jobs:
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '18.x'
 
       - name: Build Frontend
         working-directory: ./frontend
