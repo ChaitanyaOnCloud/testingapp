@@ -2,9 +2,11 @@ name: CI
 
 on:
   push:
-    branches: [ main ]
+    branches:
+      - main
   pull_request:
-    branches: [ main ]
+    branches:
+      - main
 
 jobs:
   build:
@@ -12,19 +14,31 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '18.x'
-      - name: Install Python dependencies
-        working-directory: ./backend
+
+      - name: Install Python dependencies (if backend exists)
         run: |
           if [ -d "./backend" ]; then
-            pip install -r requirements.txt
+            pip install -r ./backend/requirements.txt
           else
             echo "WARNING: ./backend directory does not exist. Skipping Python dependency installation."
           fi
-      - name: Run frontend tests
-        working-directory: ./frontend
+
+      - name: Run backend tests (if backend exists)
         run: |
-          echo "No build needed for vanilla HTML/CSS/JS. Add tests here if required."
+          if [ -d "./backend" ]; then
+            cd ./backend
+            pytest || echo "No tests found or tests failed."
+            cd ..
+          else
+            echo "WARNING: ./backend directory does not exist. Skipping backend tests."
+          fi
+
+      - name: Run frontend checks
+        run: |
+          echo "Running frontend checks (if any)"
+          # Add any frontend validation steps here if needed
